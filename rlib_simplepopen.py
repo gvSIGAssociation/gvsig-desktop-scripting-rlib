@@ -5,7 +5,6 @@ import os, os.path
 import sys
 
 from org.gvsig.tools import ToolsLocator
-from org.gvsig.andami import Utilities
 
 import rlib_base
 
@@ -75,12 +74,11 @@ class REngine_SimplePopen(rlib_base.REngine_base):
   def end(self):
     if self._script == None:
       return
-    if not os.path.exists(Utilities.TEMPDIRECTORYPATH):
-      os.makedirs(Utilities.TEMPDIRECTORYPATH)
+    folderManager = ToolsLocator.getFoldersManager()
+    folderManager.createTemporaryFolder()
 
-    t = time.time()
     script = self._script.getvalue()
-    scriptFileName = Utilities.createTemp(self.getTemp("rtest-%08x.r" % t), script)
+    scriptFileName = folderManager.getUniqueTemporaryFile("rtest.r", script)
   
     cmd = "%s -f %s 2>&1" % ( self.getRExecPathname(), scriptFileName.getAbsolutePath() )
     self._child = os.popen(cmd,"r")
