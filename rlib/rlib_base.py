@@ -1,8 +1,11 @@
 
 from gvsig import *
-
+import os
 from org.apache.commons.io import FilenameUtils
 from org.gvsig.andami import Utilities
+from java.io import File
+from org.gvsig.andami import PluginsLocator
+from org.gvsig.tools import ToolsLocator
 
 class REngine_base(object):
   def __init__(self, consoleListener=None):
@@ -39,8 +42,10 @@ class REngine_base(object):
 
   def getTemp(self,basename=None):
     if basename == None:
-      return Utilities.TEMPDIRECTORYPATH
-    return Utilities.TEMPDIRECTORYPATH + "/" + basename
+      temppath = Utilities.TEMPDIRECTORYPATH
+    else:
+      temppath = os.path.join(Utilities.TEMPDIRECTORYPATH, basename)
+    return os.path.normpath(temppath).replace("\\", "/")
     
   def addConsoleListener(self, function):
     if function == None:
@@ -56,8 +61,6 @@ class REngine_base(object):
 
   def getArchitecture(self):
     if self._architecture == None:
-      from org.gvsig.tools import ToolsLocator
-
       pkgmanager = ToolsLocator.getPackageManager()
       self._operatingSystem = pkgmanager.getOperatingSystemFamily()
       self._architecture = pkgmanager.getArchitecture()
@@ -65,17 +68,13 @@ class REngine_base(object):
     
   def getOperatingSystem(self):
     if self._operatingSystem == None:
-      from org.gvsig.tools import ToolsLocator
-
       pkgmanager = ToolsLocator.getPackageManager()
       self._operatingSystem = pkgmanager.getOperatingSystemFamily()
       self._architecture = pkgmanager.getArchitecture()
     return self._operatingSystem
     
   def getRExecPathname(self):
-    from java.io import File
-    from org.gvsig.andami import PluginsLocator
-    
+
     if self.getArchitecture() != "x86_64":  
       raise Exception("Architecture not supported.")
       
@@ -83,7 +82,7 @@ class REngine_base(object):
     pluginFolder = plugin.getPluginDirectory()
     
     if self.getOperatingSystem() == "win":  
-      f = File(pluginFolder,"R/bin/x64/R.exe")
+      f = File(pluginFolder,"R/bin/x64/Rterm.exe")
       return f.getAbsolutePath().replace("\\","/")
   
     if self.getOperatingSystem() == "lin":  
@@ -98,7 +97,7 @@ class REngine_base(object):
 
   def getLayerDSN(self,pathname):
     pathname = self.getPathName(pathname)
-    return FilenameUtils.getFullPath(pathname)
+    return FilenameUtils.getFullPathNoEndSeparator(pathname)
 
   def getLayerName(self,pathname):
     pathname = self.getPathName(pathname)
@@ -125,7 +124,7 @@ class REngine_base(object):
       pathname = pathname.getAbsolutePath()
 
     if isinstance(pathname,str) or isinstance(pathname,unicode):
-      return pathname.replace("\\","/")
+      return os.path.normpath(pathname).replace("\\","/")
     return None
 
 

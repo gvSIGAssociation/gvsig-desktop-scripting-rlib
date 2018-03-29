@@ -3,17 +3,15 @@ import StringIO
 import time
 import os, os.path
 import sys
-
+import subprocess
 from org.gvsig.tools import ToolsLocator
+#from org.gvsig.andami import Utilities
 
 import rlib_base
-
-def console(msg,otype=0):
-  print msg,
-
+ 
 class REngine_SimplePopen(rlib_base.REngine_base):
 
-  def __init__(self, consoleListener=console):
+  def __init__(self, consoleListener=None):
     rlib_base.REngine_base.__init__(self,consoleListener)
 
     self.__dict__["_child"] = None
@@ -76,19 +74,16 @@ class REngine_SimplePopen(rlib_base.REngine_base):
       return
     folderManager = ToolsLocator.getFoldersManager()
     folderManager.createTemporaryFolder()
-
+    t = time.time()
     script = self._script.getvalue()
-    scriptFileName = folderManager.getUniqueTemporaryFile("rtest.r", script)
-  
-    cmd = "%s -f %s 2>&1" % ( self.getRExecPathname(), scriptFileName.getAbsolutePath() )
-    self._child = os.popen(cmd,"r")
-    for line in self._child:
-      self.console_output(line)
-    self._child.close()
+    scriptFileName = folderManager.createTemporaryFile("rtest-%08x.r" % t, script)
+    self._child = subprocess.Popen([self.getRExecPathname(),"-f",scriptFileName.getAbsolutePath()],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    for i in self._child.stdout:
+        self.console_output(i)
     self._child = None
     rlib_base.REngine_base.end(self)
   
-def getREngine(consoleListener=console):
+def getREngine(consoleListener=None):
     return REngine_SimplePopen(consoleListener)
 
 

@@ -2,7 +2,7 @@
 from gvsig import *
 from gvsig.commonsdialog import *
 import os
-
+import subprocess
 
 from org.gvsig.andami import PluginsLocator 
 
@@ -17,8 +17,7 @@ def isexe(fpath):
         
 def RShellWindows():
   RExe = os.path.abspath(os.path.join(getPluginFolder(),"R","bin","x64","R.exe"))
-  cmd='start /wait "%s" --ess --no-restore --no-save' % RExe
-  os.system(cmd)
+  subprocess.Popen(["start", "cmd", "/K", RExe,"--ess", "--no-restore", "--no-save"],shell=True)
 
 def RShellLinux():
   RExe = os.path.abspath(os.path.join(getPluginFolder(),"R","bin","R"))
@@ -28,7 +27,6 @@ def RShellLinux():
     cmd='xterm -sb -rightbar -sl 1000 -fg gray -bg black -e "%s" --interactive --no-restore --no-save &' % RExe
   os.system(cmd)
   
-
 def rshell():
   from org.gvsig.tools import ToolsLocator
   pkgmanager = ToolsLocator.getPackageManager()

@@ -1,6 +1,6 @@
 [Unit]
 type = Script
-name = rlib_base
+name = rlib_jri
 description = 
 createdBy = 
 version = 
@@ -8,7 +8,4 @@ version =
 [Script]
 main = main
 Lang = python
-
-[script]
-enable = true
 
